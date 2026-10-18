@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>P6 Revision Quiz - 16-bit Theme</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    background: #f9f6ff;
+    color: #222;
+  }
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  .scoreboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: linear-gradient(90deg, #ffcc66, #ff99cc);
+    border-bottom: 4px solid #333;
+    box-shadow: 0 4px 0 #222;
+  }
+  .team {
+    background: #fffbe6;
+    border: 3px solid #333;
+    border-radius: 6px;
+    padding: 4px 6px;
+    margin: 3px;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 3px 3px 0 #000;
+  }
+  .team-name {
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .team-score {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .team-buttons button {
+    font-size: 13px;
+    margin: 1px;
+    padding: 2px 6px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 2px solid #000;
+    box-shadow: 2px 2px 0 #000;
+  }
+  .btn-plus {
+    background: #00cc66;
+    color: #fff;
+  }
+  .btn-minus {
+    background: #ff3366;
+    color: #fff;
+  }
+  .main-area {
+    flex: 1;
+    display: flex;
+    padding: 8px 12px;
+    box-sizing: border-box;
+  }
+  .quiz-panel {
+    flex: 2;
+    margin-right: 10px;
+    background: #ffffff;
+    border: 4px solid #333;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0 #000;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .lucky-panel {
+    flex: 1;
+    background: #e6fffb;
+    border: 4px solid #333;
+    border-radius: 8px;
+    box-shadow: 4px 4px 0 #000;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-title {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 6px;
+    text-shadow: 2px 2px 0 #fff;
+  }
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .question-body {
+    flex: 1;
+    border: 3px dashed #999;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 6px;
+    background: #fff9ff;
+    font-size: 20px;
+    line-height: 1.4;
+  }
+  .question-text {
+    margin-bottom: 10px;
+  }
+  .underline {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .answer-input {
+    width: 100%;
+    font-size: 20px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 3px solid #333;
+    box-shadow: 3px 3px 0 #000;
+  }
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .controls-row button {
+    font-size: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 3px solid #000;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 3px 3px 0 #000;
+  }
+  .btn-nav {
+    background: #66ccff;
+  }
+  .btn-check {
+    background: #00cc99;
+  }
+  .btn-reveal {
+    background: #ffcc00;
+  }
+  .btn-reset {
+    background: #ff6666;
+  }
+  .btn-hint {
+    background: #cc99ff;
+  }
+  .btn-random {
+    background: #ff99cc;
+  }
+  .hint-text, .feedback-text {
+    font-size: 16px;
+    margin-top: 4px;
+  }
+  .feedback-correct {
+    color: #008800;
+    font-weight: bold;
+  }
+  .feedback-wrong {
+    color: #cc0000;
+    font-weight: bold;
+  }
+  .timer-bar-container {
+    position: relative;
+    height: 26px;
+    background: #ddd;
+    border-top: 4px solid #333;
+    border-bottom: 4px solid #333;
+  }
+  .timer-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: #66dd66;
+    transition: width 1s linear, background 0.3s;
+  }
+  .timer-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    line-height: 26px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  .timer-warning {
+    background: #ffcc33 !important;
+  }
+  .timer-danger {
+    background: #ff4444 !important;
+  }
+  .bottom-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 10px;
+    background: #222;
+    color: #fff;
+    font-size: 14px;
+  }
+  .bottom-controls label, .bottom-controls input {
+    font-size: 14px;
+  }
+  .lucky-input-row {
+    margin-bottom: 6px;
+  }
+  .lucky-input-row input {
+    width: 60px;
+    padding: 3px 5px;
+    font-size: 15px;
+    border-radius: 4px;
+    border: 2px solid #000;
+  }
+  .lucky-buttons button {
+    font-size: 15px;
+    margin-right: 4px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 3px solid #000;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #000;
+    background: #ffcc66;
+  }
+  .lucky-display {
+    margin-top: 6px;
+    padding: 6px;
+    background: #fff;
+    border-radius: 6px;
+    border: 3px solid #333;
+    font-size: 16px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  .lucky-latest {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff3366;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .lucky-remaining {
+    margin-bottom: 4px;
+  }
+  .lucky-history {
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <div class="scoreboard" id="scoreboard">
+    <!-- Teams will be injected here -->
+  </div>
+
+  <div class="main-area">
+    <div class="quiz-panel">
+      <div class="panel-title">P6 Revision Quiz</div>
+      <div class="question-header">
+        <div id="question-info"></div>
+        <div id="question-type"></div>
+      </div>
+      <div class="question-body">
+        <div class="question-text" id="question-text"></div>
+        <input type="text" class="answer-input" id="answer-input" autocomplete="off" />
+        <div class="hint-text" id="hint-text"></div>
+        <div class="feedback-text" id="feedback-text"></div>
+      </div>
+      <div class="controls-row">
+        <button class="btn-nav" id="prev-btn">⯇ Prev</button>
+        <button class="btn-nav" id="next-btn">Next ⯈</button>
+        <button class="btn-check" id="check-btn">Check</button>
+        <button class="btn-reveal" id="reveal-btn">Reveal</button>
+        <button class="btn-hint" id="hint-btn">Hint</button>
+        <button class="btn-reset" id="reset-btn">Reset</button>
+        <button class="btn-random" id="random-btn">Randomise order</button>
+      </div>
+    </div>
+
+    <div class="lucky-panel">
+      <div class="panel-title">Lucky Draw</div>
+      <div class="lucky-input-row">
+        Class size (1-40):
+        <input type="number" id="class-size" min="1" max="40" value="30" />
+      </div>
+      <div class="lucky-buttons">
+        <button id="init-pool-btn">Set / Reset Pool</button>
+        <button id="draw-btn">Draw Number</button>
+      </div>
+      <div class="lucky-display">
+        <div class="lucky-latest" id="lucky-latest">-</div>
+        <div class="lucky-remaining" id="lucky-remaining">Remaining: 0</div>
+        <div class="lucky-history" id="lucky-history">Drawn: -</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timer-bar-container">
+    <div class="timer-bar" id="timer-bar"></div>
+    <div class="timer-text" id="timer-text">Timer: --</div>
+  </div>
+
+  <div class="bottom-controls">
+    <div>
+      Timer (seconds per question):
+      <input type="number" id="timer-seconds" value="30" min="5" max="300" />
+      <label><input type="checkbox" id="auto-advance" /> Auto-advance on timeout</label>
+    </div>
+    <div>
+      Tip: Use the Hint button to reveal one letter each time.
+    </div>
+  </div>
+</div>
+
+<script>
+  // Question bank
+  const questions = [
+    // Vocabulary 1-10
+    {
+      id: 1,
+      type: "Vocabulary",
+      prompt: "People in Hong Kong are ____ their city because it is safe and convenient.",
+      answers: ["proud of"],
+      source: "adjectives with prepositions"
+    },
+    {
+      id: 2,
+      type: "Vocabulary",
+      prompt: "My little cousin is ____ snakes, so he does not want to visit the reptile house.",
+      answers: ["scared of"],
+      source: "adjectives with prepositions"
+    },
+    {
+      id: 3,
+      type: "Vocabulary",
+      prompt: "Mum is ____ my exam results because I did revision every day.",
+      answers: ["pleased with"],
+      source: "adjectives with prepositions"
+    },
+    {
+      id: 4,
+      type: "Vocabulary",
+      prompt: "The teacher is ____ her students because they keep talking in class.",
+      answers: ["angry with"],
+      source: "adjectives with prepositions"
+    },
+    {
+      id: 5,
+      type: "Vocabulary",
+      prompt: "I feel ____ the test because I did not study hard enough.",
+      answers: ["ashamed of"],
+      source: "adjectives with prepositions"
+    },
+    {
+      id: 6,
+      type: "Vocabulary",
+      prompt: "Joining the beach clean-up was a ____ experience for us.",
+      answers: ["meaningful"],
+      source: "adjectives about experiences"
+    },
+    {
+      id: 7,
+      type: "Vocabulary",
+      prompt: "Watching the injured dolphin was a ____ experience for the children.",
+      answers: ["painful"],
+      source: "adjectives about experiences"
+    },
+    {
+      id: 8,
+      type: "Vocabulary",
+      prompt: "Recycling cans and plastic bottles is a ____ activity for our city.",
+      answers: ["valuable"],
+      source: "adjectives about experiences"
+    },
+    {
+      id: 9,
+      type: "Vocabulary",
+      prompt: "Traffic jams and too many cars cause a lot of ____ pollution in Hong Kong.",
+      answers: ["air"],
+      source: "types of pollution"
+    },
+    {
+      id: 10,
+      type: "Vocabulary",
+      prompt: "When people shout on the train, they cause ____ pollution.",
+      answers: ["noise"],
+      source: "types of pollution"
+    },
+
+    // Tenses 11-20
+    {
+      id: 11,
+      type: "Tenses",
+      prompt: "He ____ (recycle) cans and plastic bottles <b>every day</b>.",
+      answers: ["recycles"],
+      source: "present simple"
+    },
+    {
+      id: 12,
+      type: "Tenses",
+      prompt: "They ____ (turn off) the lights <b>every night</b> before they leave the classroom.",
+      answers: ["turn off"],
+      source: "present simple phrasal"
+    },
+    {
+      id: 13,
+      type: "Tenses",
+      prompt: "She ____ (have) a shower <b>every morning</b>.",
+      answers: ["has"],
+      source: "present simple"
+    },
+    {
+      id: 14,
+      type: "Tenses",
+      prompt: "We ____ (bring) our own water bottles to school <b>on weekdays</b>.",
+      answers: ["bring"],
+      source: "present simple"
+    },
+    {
+      id: 15,
+      type: "Tenses",
+      prompt: "People ____ (throw away) too many disposable products <b>these days</b>.",
+      answers: ["throw away"],
+      source: "present simple phrasal"
+    },
+    {
+      id: 16,
+      type: "Tenses",
+      prompt: "The students ____ (pick up) rubbish on the beach <b>now</b>.",
+      answers: ["are picking up"],
+      source: "present continuous"
+    },
+    {
+      id: 17,
+      type: "Tenses",
+      prompt: "My brother ____ (turn down) the air-con <b>at the moment</b> because it is not very hot.",
+      answers: ["is turning down"],
+      source: "present continuous"
+    },
+    {
+      id: 18,
+      type: "Tenses",
+      prompt: "Many people ____ (use) too many plastic bags <b>these days</b>.",
+      answers: ["are using"],
+      source: "present continuous"
+    },
+    {
+      id: 19,
+      type: "Tenses",
+      prompt: "We ____ (have) a project about endangered animals <b>this week</b>.",
+      answers: ["are having"],
+      source: "present continuous"
+    },
+    {
+      id: 20,
+      type: "Tenses",
+      prompt: "Our class ____ (visit) a famous harbour in Australia <b>this weekend</b>.",
+      answers: ["is visiting"],
+      source: "present continuous"
+    },
+
+    // Prepositions 21-30
+    {
+      id: 21,
+      type: "Prepositions",
+      prompt: "We go to school ____ bus to reduce air pollution.",
+      answers: ["by"],
+      source: "preposition by"
+    },
+    {
+      id: 22,
+      type: "Prepositions",
+      prompt: "I get up ____ 7 a.m. on school days.",
+      answers: ["at"],
+      source: "preposition at"
+    },
+    {
+      id: 23,
+      type: "Prepositions",
+      prompt: "The lights in the corridor are always switched off ____ night.",
+      answers: ["at"],
+      source: "preposition at"
+    },
+    {
+      id: 24,
+      type: "Prepositions",
+      prompt: "There are many tourists ____ the harbour taking photos.",
+      answers: ["at"],
+      source: "preposition at"
+    },
+    {
+      id: 25,
+      type: "Prepositions",
+      prompt: "My sister is worried ____ the land pollution near the old factory.",
+      answers: ["about"],
+      source: "preposition about"
+    },
+    {
+      id: 26,
+      type: "Prepositions",
+      prompt: "We talked ____ ways to protect animals in the lesson.",
+      answers: ["about"],
+      source: "preposition about"
+    },
+    {
+      id: 27,
+      type: "Prepositions",
+      prompt: "Dad usually reads the news ____ the MTR when he goes to work.",
+      answers: ["on"],
+      source: "preposition on"
+    },
+    {
+      id: 28,
+      type: "Prepositions",
+      prompt: "We can save water by taking showers instead of having baths ____ home.",
+      answers: ["at"],
+      source: "preposition at"
+    },
+    {
+      id: 29,
+      type: "Prepositions",
+      prompt: "I like drawing pictures ____ colourful landmarks such as bridges and towers.",
+      answers: ["about"],
+      source: "preposition about"
+    },
+    {
+      id: 30,
+      type: "Prepositions",
+      prompt: "The boy felt proud when the teacher smiled ____ him.",
+      answers: ["at"],
+      source: "preposition at"
+    },
+
+    // Proofreading 31-40
+    {
+      id: 31,
+      type: "Proofreading",
+      prompt: "People <u class='underline'>dumps</u> waste into the sea and harm sea animals.",
+      answers: ["dump"],
+      source: "grammar error"
+    },
+    {
+      id: 32,
+      type: "Proofreading",
+      prompt: "We should <u class='underline'>threw</u> away less plastic bags to reduce pollution.",
+      answers: ["throw"],
+      source: "tense error"
+    },
+    {
+      id: 33,
+      type: "Proofreading",
+      prompt: "My sister felt <u class='underline'>joyfull</u> after she got a gold medal.",
+      answers: ["joyful"],
+      source: "spelling error"
+    },
+    {
+      id: 34,
+      type: "Proofreading",
+      prompt: "The experience was very <u class='underline'>awfull</u> for the animals in the laboratory.",
+      answers: ["awful"],
+      source: "spelling error"
+    },
+    {
+      id: 35,
+      type: "Proofreading",
+      prompt: "They <u class='underline'>is</u> proud of their project on endangered animals.",
+      answers: ["are"],
+      source: "grammar error"
+    },
+    {
+      id: 36,
+      type: "Proofreading",
+      prompt: "We <u class='underline'>was</u> ashamed of leaving rubbish in the country park.",
+      answers: ["were"],
+      source: "grammar error"
+    },
+    {
+      id: 37,
+      type: "Proofreading",
+      prompt: "People should stop <u class='underline'>thowing</u> rubbish into the river.",
+      answers: ["throwing"],
+      source: "spelling error"
+    },
+    {
+      id: 38,
+      type: "Proofreading",
+      prompt: "I am very <u class='underline'>proude</u> of myself for joining the animal charity.",
+      answers: ["proud"],
+      source: "spelling error"
+    },
+    {
+      id: 39,
+      type: "Proofreading",
+      prompt: "They do not <u class='underline'>uses</u> less plastic bags when they go shopping.",
+      answers: ["use"],
+      source: "grammar error"
+    },
+    {
+      id: 40,
+      type: "Proofreading",
+      prompt: "We are <u class='underline'>disapointed</u> with people who keep rare animals as pets.",
+      answers: ["disappointed"],
+      source: "spelling error"
+    },
+
+    // Irregular verbs 41-50
+    {
+      id: 41,
+      type: "Irregular verbs",
+      prompt: "break → ____ ____ ____",
+      answers: ["breaking", "broke", "broken"],
+      source: "irregular verb table"
+    },
+    {
+      id: 42,
+      type: "Irregular verbs",
+      prompt: "catch → ____ ____ ____",
+      answers: ["catching", "caught", "caught"],
+      source: "irregular verb table"
+    },
+    {
+      id: 43,
+      type: "Irregular verbs",
+      prompt: "buy → ____ ____ ____",
+      answers: ["buying", "bought", "bought"],
+      source: "irregular verb table"
+    },
+    {
+      id: 44,
+      type: "Irregular verbs",
+      prompt: "write → ____ ____ ____",
+      answers: ["writing", "wrote", "written"],
+      source: "irregular verb table"
+    },
+    {
+      id: 45,
+      type: "Irregular verbs",
+      prompt: "take → ____ ____ ____",
+      answers: ["taking", "took", "taken"],
+      source: "irregular verb table"
+    },
+    {
+      id: 46,
+      type: "Irregular verbs",
+      prompt: "eat → ____ ____ ____",
+      answers: ["eating", "ate", "eaten"],
+      source: "irregular verb table"
+    },
+    {
+      id: 47,
+      type: "Irregular verbs",
+      prompt: "speak → ____ ____ ____",
+      answers: ["speaking", "spoke", "spoken"],
+      source: "irregular verb table"
+    },
+    {
+      id: 48,
+      type: "Irregular verbs",
+      prompt: "give → ____ ____ ____",
+      answers: ["giving", "gave", "given"],
+      source: "irregular verb table"
+    },
+    {
+      id: 49,
+      type: "Irregular verbs",
+      prompt: "choose → ____ ____ ____",
+      answers: ["choosing", "chose", "chosen"],
+      source: "irregular verb table"
+    },
+    {
+      id: 50,
+      type: "Irregular verbs",
+      prompt: "go → ____ ____ ____",
+      answers: ["going", "went", "gone"],
+      source: "irregular verb table"
+    }
+  ];
+
+  let currentIndex = 0;
+  let timerInterval = null;
+  let remainingSeconds = 0;
+  let originalOrder = questions.map((q, idx) => idx);
+  let currentOrder = originalOrder.slice();
+  let hintIndex = 0;
+  const storedAnswers = {};
+
+  function createScoreboard() {
+    const sb = document.getElementById('scoreboard');
+    for (let i = 1; i <= 8; i++) {
+      const teamDiv = document.createElement('div');
+      teamDiv.className = 'team';
+      teamDiv.dataset.index = i;
+      teamDiv.innerHTML = `
+        <div class="team-name">Group ${i}</div>
+        <div class="team-score" id="team-score-${i}">0</div>
+        <div class="team-buttons">
+          <button class="btn-plus" data-team="${i}" data-change="1">+1</button>
+          <button class="btn-plus" data-team="${i}" data-change="2">+2</button><br />
+          <button class="btn-minus" data-team="${i}" data-change="-1">-1</button>
+          <button class="btn-minus" data-team="${i}" data-change="-2">-2</button>
+        </div>
+      `;
+      sb.appendChild(teamDiv);
+    }
+
+    sb.addEventListener('click', (e) => {
+      if (e.target.tagName.toLowerCase() === 'button' && e.target.dataset.team) {
+        const team = e.target.dataset.team;
+        const change = parseInt(e.target.dataset.change, 10);
+        const scoreEl = document.getElementById('team-score-' + team);
+        let score = parseInt(scoreEl.textContent, 10) || 0;
+        score += change;
+        scoreEl.textContent = score;
+      }
+    });
+  }
+
+  function getCurrentQuestion() {
+    return questions[currentOrder[currentIndex]];
+  }
+
+  function renderQuestion() {
+    const q = getCurrentQuestion();
+    const infoEl = document.getElementById('question-info');
+    const typeEl = document.getElementById('question-type');
+    const textEl = document.getElementById('question-text');
+    const inputEl = document.getElementById('answer-input');
+    const hintEl = document.getElementById('hint-text');
+    const feedbackEl = document.getElementById('feedback-text');
+
+    infoEl.textContent = `Question ${currentIndex + 1} / ${questions.length}`;
+    typeEl.textContent = q.type;
+    textEl.innerHTML = q.prompt;
+
+    const saved = storedAnswers[q.id] || '';
+    inputEl.value = saved;
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback-text';
+    hintIndex = 0;
+    hintEl.textContent = '';
+
+    startTimer();
+    inputEl.focus();
+  }
+
+  function startTimer() {
+    const bar = document.getElementById('timer-bar');
+    const text = document.getElementById('timer-text');
+    const secondsInput = document.getElementById('timer-seconds');
+    const total = parseInt(secondsInput.value, 10) || 30;
+    remainingSeconds = total;
+
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+
+    bar.classList.remove('timer-warning', 'timer-danger');
+    bar.style.width = '100%';
+    text.textContent = `Time left: ${remainingSeconds}s`;
+
+    timerInterval = setInterval(() => {
+      remainingSeconds--;
+      if (remainingSeconds < 0) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        const autoAdvance = document.getElementById('auto-advance');
+        text.textContent = 'Time's up!';
+        bar.style.width = '0%';
+        if (autoAdvance.checked) {
+          goNext();
+        }
+        return;
+      }
+
+      const ratio = remainingSeconds / total;
+      bar.style.width = (ratio * 100) + '%';
+
+      if (remainingSeconds <= 3) {
+        bar.classList.remove('timer-warning');
+        bar.classList.add('timer-danger');
+      } else if (remainingSeconds <= 10) {
+        bar.classList.add('timer-warning');
+      } else {
+        bar.classList.remove('timer-warning', 'timer-danger');
+      }
+
+      text.textContent = `Time left: ${remainingSeconds}s`;
+    }, 1000);
+  }
+
+  function normalise(str) {
+    return str.trim().toLowerCase();
+  }
+
+  function checkAnswer() {
+    const q = getCurrentQuestion();
+    const inputEl = document.getElementById('answer-input');
+    const feedbackEl = document.getElementById('feedback-text');
+    const user = normalise(inputEl.value);
+    storedAnswers[q.id] = inputEl.value;
+
+    if (!user) {
+      feedbackEl.textContent = 'Type your answer first.';
+      feedbackEl.className = 'feedback-text feedback-wrong';
+      return;
+    }
+
+    let correct = false;
+    const expected = q.answers.map(a => normalise(a));
+
+    if (q.type === 'Irregular verbs') {
+      const parts = user.split(/\s+/);
+      if (parts.length === expected.length) {
+        correct = parts.every((p, i) => p === expected[i]);
+      }
+    } else {
+      // Single-word / phrase answers
+      correct = expected.includes(user);
+    }
+
+    if (correct) {
+      feedbackEl.textContent = 'Correct!';
+      feedbackEl.className = 'feedback-text feedback-correct';
+    } else {
+      feedbackEl.textContent = 'Try again.';
+      feedbackEl.className = 'feedback-text feedback-wrong';
+    }
+  }
+
+  function revealAnswer() {
+    const q = getCurrentQuestion();
+    const feedbackEl = document.getElementById('feedback-text');
+    const ans = q.answers.join(' / ');
+    feedbackEl.textContent = 'Answer: ' + ans;
+    feedbackEl.className = 'feedback-text';
+  }
+
+  function giveHint() {
+    const q = getCurrentQuestion();
+    const hintEl = document.getElementById('hint-text');
+    const answerString = q.answers.join(' ');
+    if (hintIndex < answerString.length) {
+      hintIndex++;
+      hintEl.textContent = 'Hint: ' + answerString.slice(0, hintIndex);
+    }
+  }
+
+  function resetCurrent() {
+    const q = getCurrentQuestion();
+    const inputEl = document.getElementById('answer-input');
+    const feedbackEl = document.getElementById('feedback-text');
+    const hintEl = document.getElementById('hint-text');
+    inputEl.value = '';
+    storedAnswers[q.id] = '';
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback-text';
+    hintEl.textContent = '';
+    hintIndex = 0;
+    startTimer();
+  }
+
+  function goNext() {
+    currentIndex = (currentIndex + 1) % questions.length;
+    renderQuestion();
+  }
+
+  function goPrev() {
+    currentIndex = (currentIndex - 1 + questions.length) % questions.length;
+    renderQuestion();
+  }
+
+  function randomiseOrder() {
+    currentOrder = currentOrder.sort(() => Math.random() - 0.5);
+    currentIndex = 0;
+    renderQuestion();
+  }
+
+  // Lucky draw logic
+  let pool = [];
+  let drawn = [];
+
+  function initPool() {
+    const sizeInput = document.getElementById('class-size');
+    let n = parseInt(sizeInput.value, 10);
+    if (isNaN(n) || n < 1) n = 1;
+    if (n > 40) n = 40;
+    sizeInput.value = n;
+
+    pool = [];
+    drawn = [];
+    for (let i = 1; i <= n; i++) {
+      pool.push(i);
+    }
+    updateLuckyDisplay();
+  }
+
+  function drawNumber() {
+    if (pool.length === 0) {
+      alert('Pool empty. Please reset pool.');
+      return;
+    }
+    const index = Math.floor(Math.random() * pool.length);
+    const value = pool.splice(index, 1)[0];
+    drawn.unshift(value);
+    updateLuckyDisplay(value);
+  }
+
+  function updateLuckyDisplay(latest) {
+    const latestEl = document.getElementById('lucky-latest');
+    const remainingEl = document.getElementById('lucky-remaining');
+    const historyEl = document.getElementById('lucky-history');
+
+    if (latest !== undefined) {
+      latestEl.textContent = latest;
+    } else {
+      latestEl.textContent = '-';
+    }
+    remainingEl.textContent = 'Remaining: ' + pool.length;
+    if (drawn.length === 0) {
+      historyEl.textContent = 'Drawn: -';
+    } else {
+      historyEl.textContent = 'Drawn: ' + drawn.join(', ');
+    }
+  }
+
+  function addEventListeners() {
+    document.getElementById('check-btn').addEventListener('click', checkAnswer);
+    document.getElementById('reveal-btn').addEventListener('click', revealAnswer);
+    document.getElementById('hint-btn').addEventListener('click', giveHint);
+    document.getElementById('reset-btn').addEventListener('click', resetCurrent);
+    document.getElementById('next-btn').addEventListener('click', goNext);
+    document.getElementById('prev-btn').addEventListener('click', goPrev);
+    document.getElementById('random-btn').addEventListener('click', randomiseOrder);
+
+    document.getElementById('init-pool-btn').addEventListener('click', initPool);
+    document.getElementById('draw-btn').addEventListener('click', drawNumber);
+
+    document.getElementById('answer-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        checkAnswer();
+      }
+    });
+  }
+
+  // Initialise
+  window.addEventListener('load', () => {
+    createScoreboard();
+    addEventListeners();
+    initPool();
+    renderQuestion();
+  });
+</script>
+</body>
+</html>

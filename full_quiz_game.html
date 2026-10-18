@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quiz Game Full</title>
+<style>
+body{font-family:'Courier New';background:#e8f6ff;margin:0}
+.topbar{display:flex;justify-content:space-around;background:#222;color:white;padding:5px;font-size:15px}
+.team{text-align:center}
+button{font-size:15px;margin:2px;padding:5px}
+.plus{background:#2ecc71}.minus{background:#e74c3c}
+.main{display:flex;height:70vh}
+.question{flex:3;padding:20px;font-size:20px}
+.lucky{flex:1;border-left:3px solid black;padding:10px}
+.timer{height:30px;background:#ccc}
+.bar{height:100%;background:#3498db;width:100%}
+.controls{text-align:center;padding:10px}
+.bold{font-weight:bold;color:red}
+</style>
+</head>
+<body>
+<div class="topbar" id="scoreboard"></div>
+<div class="main">
+<div class="question">
+<div id="qtext"></div>
+<input id="answer" style="font-size:20px">
+<div id="feedback"></div>
+</div>
+<div class="lucky">
+<h3>Lucky Draw</h3>
+<button onclick="draw()">Draw</button>
+<button onclick="resetDraw()">Reset Pool</button>
+<p>Remaining: <span id="remain"></span></p>
+<p id="latest"></p>
+<div id="drawn"></div>
+</div>
+</div>
+<div class="timer"><div class="bar" id="bar"></div></div>
+<div class="controls">
+<button onclick="prevQ()">Prev</button>
+<button onclick="nextQ()">Next</button>
+<button onclick="check()">Check</button>
+<button onclick="hint()">Hint</button>
+<button onclick="resetQuiz()">Reset</button>
+<button onclick="randomise()">Randomise</button>
+<label><input type="checkbox" id="auto"> Auto-next</label>
+<button onclick="copyLink()">Copy Link</button>
+<button onclick="window.print()">Print</button>
+</div>
+<script>
+let timeLimit=20,time,qIndex=0,hintCount=0,timer;
+let questions=[
+["We should not ______ away a lot of used plastic bags.","throw"],
+["People should ______ the lights when they leave.","turn off"],
+["Turn ______ the air-conditioner.","down"],
+["We should ______ your own bottle.","bring"],
+["People ______ cans and paper.","recycle"],
+["Do not ______ the tap on.","leave"],
+["Factories cause ______ pollution.","air"],
+["River rubbish causes ______ pollution.","water"],
+["A place with ships is a ______.","harbour"],
+["A very dry place is a ______.","desert"],
+["People ____ (turn off) lights every day.","turn off"],
+["She ____ (have) a shower now.","is having"],
+["I am scared ___ spiders.","of"],
+["She is worried ___ the test.","about"],
+["He is proud ___ his school.","of"],
+["I am excited ___ the picnic.","about"],
+["She is angry ___ him.","with"],
+["They are pleased ___ results.","with"],
+["He is ashamed ___ it.","of"],
+["We are nervous ___ match.","about"],
+["People should <u>throws</u> less.","throw"],
+["Stop <u>use</u> plastic.","using"],
+["So much <u>bottles</u>.","many"],
+["So many <u>food</u>.","much"],
+["Famous <u>of</u>.","for"],
+["Place <u>what</u>.","where"],
+["Trees <u>is</u> cut.","are"],
+["Polluted by <u>factory</u>.","factories"],
+["Should <u>reducing</u>.","reduce"],
+["Stop to <u>throw</u>.","throwing"]
+];
+function loadQ(){document.getElementById("qtext").innerHTML=questions[qIndex][0];document.getElementById("answer").value="";document.getElementById("feedback").innerHTML="";hintCount=0;startTimer();}
+function startTimer(){clearInterval(timer);time=timeLimit;timer=setInterval(()=>{time--;bar.style.width=(time/timeLimit*100)+'%';if(time<=10)bar.style.background='red';if(time<=0){clearInterval(timer);if(auto.checked)nextQ();}},1000);}
+function check(){let a=answer.value.trim().toLowerCase();feedback.innerHTML=a===questions[qIndex][1]?"✅ Correct":"❌ Answer: "+questions[qIndex][1];}
+function hint(){hintCount++;feedback.innerHTML=questions[qIndex][1].substring(0,hintCount);}
+function nextQ(){qIndex=(qIndex+1)%questions.length;loadQ();}
+function prevQ(){qIndex=(qIndex-1+questions.length)%questions.length;loadQ();}
+function resetQuiz(){qIndex=0;loadQ();}
+function randomise(){questions.sort(()=>Math.random()-0.5);loadQ();}
+function copyLink(){navigator.clipboard.writeText(location.href);alert('Copied!');}
+let pool=[...Array(40).keys()].map(x=>x+1),used=[];
+function draw(){if(!pool.length)return;let i=Math.floor(Math.random()*pool.length),n=pool.splice(i,1)[0];used.push(n);latest.innerHTML='<span class="bold">'+n+'</span>';drawn.innerHTML=used.join(', ');remain.innerHTML=pool.length;}
+function resetDraw(){pool=[...Array(40).keys()].map(x=>x+1);used=[];drawn.innerHTML='';latest.innerHTML='';remain.innerHTML=pool.length;}
+let board=document.getElementById('scoreboard');
+for(let i=1;i<=8;i++){let d=document.createElement('div');d.className='team';d.innerHTML='Group '+i+'<br>'+
+"<button class='plus' onclick='add(this,1)'>+1</button><button class='plus' onclick='add(this,2)'>+2</button><br>"+
+"<button class='minus' onclick='add(this,-1)'>-1</button><button class='minus' onclick='add(this,-2)'>-2</button>"+
+"<div>0</div>";board.appendChild(d);}
+function add(btn,val){let s=btn.parentElement.querySelector('div');s.innerHTML=parseInt(s.innerHTML)+val;}
+resetDraw();loadQ();
+</script>
+</body>
+</html>
